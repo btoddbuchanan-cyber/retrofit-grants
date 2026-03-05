@@ -1,26 +1,239 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gc-red: #AF3C43;
+  --color-gc-red-dark: #942832;
+  --color-gc-blue: #26374A;
+  --color-gc-blue-light: #335075;
+  --color-gc-white: #FFFFFF;
+  --color-gc-gray-light: #F8F8F8;
+  --color-gc-gray: #EEEEEE;
+  --color-gc-gray-dark: #333333;
+  --color-gc-green: #1B6C2A;
+  --color-gc-green-light: #D8EECA;
+  --color-gc-yellow: #F0C808;
+  --color-gc-accent: #2572B4;
+  --color-gc-accent-dark: #1C578A;
+  --color-gc-border: #DCDEE1;
+  --color-gc-bg: #F5F5F5;
+  --color-gc-hero: #EBF1F7;
+  --font-sans: "Noto Sans", Arial, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  color: #333;
+  background: #fff;
+}
+
+a {
+  color: var(--color-gc-accent);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--color-gc-accent-dark);
+}
+
+/* Canada.ca flag bar */
+.gc-flag-bar {
+  background: var(--color-gc-blue);
+  height: 4px;
+}
+
+/* GC Button styles */
+.gc-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  font-size: 1rem;
+}
+
+.gc-btn-primary {
+  background: var(--color-gc-accent);
+  color: #fff;
+}
+
+.gc-btn-primary:hover {
+  background: var(--color-gc-accent-dark);
+  color: #fff;
+}
+
+.gc-btn-success {
+  background: var(--color-gc-green);
+  color: #fff;
+}
+
+.gc-btn-success:hover {
+  background: #145520;
+  color: #fff;
+}
+
+.gc-btn-outline {
+  background: transparent;
+  color: var(--color-gc-accent);
+  border: 2px solid var(--color-gc-accent);
+}
+
+.gc-btn-outline:hover {
+  background: var(--color-gc-accent);
+  color: #fff;
+}
+
+.gc-btn-danger {
+  background: var(--color-gc-red);
+  color: #fff;
+}
+
+/* GC Card */
+.gc-card {
+  background: #fff;
+  border: 1px solid var(--color-gc-border);
+  border-radius: 4px;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.gc-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* GC Alert boxes */
+.gc-alert {
+  padding: 1rem 1.25rem;
+  border-left: 4px solid;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.gc-alert-info {
+  background: #EBF1F7;
+  border-color: var(--color-gc-accent);
+}
+
+.gc-alert-success {
+  background: var(--color-gc-green-light);
+  border-color: var(--color-gc-green);
+}
+
+.gc-alert-warning {
+  background: #FFF8E0;
+  border-color: var(--color-gc-yellow);
+}
+
+.gc-alert-danger {
+  background: #F8D7DA;
+  border-color: var(--color-gc-red);
+}
+
+/* Form styles */
+.gc-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.gc-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: #333;
+}
+
+.gc-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.gc-input:focus {
+  border-color: var(--color-gc-accent);
+  outline: 3px solid rgba(37, 114, 180, 0.3);
+}
+
+.gc-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+/* Step indicator */
+.gc-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.gc-step-active {
+  background: var(--color-gc-accent);
+  color: #fff;
+}
+
+.gc-step-complete {
+  background: var(--color-gc-green);
+  color: #fff;
+}
+
+.gc-step-pending {
+  background: var(--color-gc-gray);
+  color: #666;
+}
+
+/* Upload area */
+.gc-upload-area {
+  border: 2px dashed var(--color-gc-border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.gc-upload-area:hover {
+  border-color: var(--color-gc-accent);
+  background: #f0f7ff;
+}
+
+/* Breadcrumb */
+.gc-breadcrumb {
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+.gc-breadcrumb a {
+  color: var(--color-gc-accent);
+}
+
+.gc-breadcrumb span {
+  color: #666;
+  margin: 0 0.375rem;
+}
+
+/* Progress bar */
+.gc-progress {
+  height: 8px;
+  background: var(--color-gc-gray);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.gc-progress-bar {
+  height: 100%;
+  background: var(--color-gc-accent);
+  border-radius: 4px;
+  transition: width 0.3s;
 }
