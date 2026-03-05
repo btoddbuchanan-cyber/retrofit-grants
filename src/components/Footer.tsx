@@ -1,75 +1,78 @@
+"use client";
+
 import Link from "next/link";
 import CanadaFlag from "./CanadaFlag";
+import { useDictionary } from "./DictionaryProvider";
 
 export default function Footer() {
+  const { dict, locale } = useDictionary();
+
   return (
     <footer className="bg-gc-blue text-white mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">GreenHome Canada</h3>
+            <h3 className="font-bold text-lg mb-4">{dict.footer.siteTitle}</h3>
             <p className="text-sm text-gray-300 leading-relaxed">
-              The Canada Greener Homes Retrofit Grant helps homeowners make
-              energy-efficient upgrades to reduce emissions and save on energy
-              costs.
+              {dict.footer.siteDescription}
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+            <h3 className="font-bold text-lg mb-4">{dict.footer.quickLinks}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/grants"
+                  href={`/${locale}/grants`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  Available Grants
+                  {dict.footer.availableGrants}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/eligibility"
+                  href={`/${locale}/eligibility`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  Check Eligibility
+                  {dict.footer.checkEligibility}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/apply"
+                  href={`/${locale}/apply`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  Apply Now
+                  {dict.footer.applyNow}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/validation"
+                  href={`/${locale}/validation`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  Submit Validation
+                  {dict.footer.submitValidation}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/dashboard"
+                  href={`/${locale}/dashboard`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  My Dashboard
+                  {dict.footer.myDashboard}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-lg mb-4">Contact</h3>
+            <h3 className="font-bold text-lg mb-4">{dict.footer.contact}</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li>1-800-O-Canada (1-800-622-6232)</li>
-              <li>TTY: 1-800-926-9105</li>
+              <li>{dict.footer.phone}</li>
+              <li>{dict.footer.tty}</li>
               <li>
                 <a
-                  href="mailto:info@greenhome.gc.ca"
+                  href={`mailto:${dict.footer.email}`}
                   className="text-gray-300 hover:text-white no-underline"
                 >
-                  info@greenhome.gc.ca
+                  {dict.footer.email}
                 </a>
               </li>
             </ul>
@@ -77,18 +80,18 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-600 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <CanadaFlag width={30} />
-            <span className="text-sm">Government of Canada</span>
+            <CanadaFlag width={30} alt={dict.common.flagAlt} />
+            <span className="text-sm">{dict.common.governmentOf}</span>
           </div>
           <div className="text-xs text-gray-400 flex gap-4">
             <a href="#" className="hover:text-white no-underline">
-              Terms & Conditions
+              {dict.footer.terms}
             </a>
             <a href="#" className="hover:text-white no-underline">
-              Privacy
+              {dict.footer.privacy}
             </a>
             <a href="#" className="hover:text-white no-underline">
-              Accessibility
+              {dict.footer.accessibility}
             </a>
           </div>
         </div>

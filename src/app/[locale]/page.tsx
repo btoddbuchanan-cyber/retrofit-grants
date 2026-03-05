@@ -1,8 +1,25 @@
 import Link from "next/link";
-import { grants, getMaxTotalGrant } from "@/lib/grants";
+import { getDictionary } from "@/lib/getDictionary";
+import { isValidLocale, type Locale } from "@/lib/i18n";
+import { getGrants, getMaxTotalGrant } from "@/lib/grants";
+import { notFound } from "next/navigation";
 
-export default function Home() {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
+
+  const dict = await getDictionary(locale as Locale);
+  const grants = getGrants(locale as Locale);
   const maxTotal = getMaxTotalGrant();
+  const fmt = new Intl.NumberFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  });
 
   return (
     <>
@@ -11,25 +28,26 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-16 md:py-24">
           <div className="max-w-3xl">
             <div className="gc-alert gc-alert-info mb-6">
-              <strong>Applications are now open</strong> for the 2025-2026
-              fiscal year. Funding is available on a first-come, first-served
-              basis.
+              <strong>{dict.home.alertOpen}</strong> {dict.home.alertFiscal}
             </div>
             <h1 className="text-3xl md:text-5xl font-bold text-gc-blue mb-4 leading-tight">
-              Canada Greener Homes Retrofit Grant
+              {dict.home.heroTitle}
             </h1>
             <p className="text-lg md:text-xl text-gc-blue-light mb-8 leading-relaxed">
-              Get up to <strong>${maxTotal.toLocaleString()}</strong> in federal
-              grants to make your home more energy efficient. Reduce your carbon
-              footprint and save on energy costs with upgrades like heat pumps,
-              solar panels, insulation, and more.
+              {dict.home.heroDesc.replace("{maxTotal}", fmt.format(maxTotal))}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/eligibility" className="gc-btn gc-btn-primary">
-                Check Your Eligibility
+              <Link
+                href={`/${locale}/eligibility`}
+                className="gc-btn gc-btn-primary"
+              >
+                {dict.home.checkEligibility}
               </Link>
-              <Link href="/apply" className="gc-btn gc-btn-outline">
-                Start Your Application
+              <Link
+                href={`/${locale}/apply`}
+                className="gc-btn gc-btn-outline"
+              >
+                {dict.home.startApplication}
               </Link>
             </div>
           </div>
@@ -40,30 +58,14 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gc-blue mb-10 text-center">
-            How It Works
+            {dict.home.howItWorks}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              {
-                step: 1,
-                title: "Check Eligibility",
-                desc: "Verify you qualify based on home ownership, property type, and location.",
-              },
-              {
-                step: 2,
-                title: "Apply Online",
-                desc: "Submit your application with property details and your planned retrofit upgrades.",
-              },
-              {
-                step: 3,
-                title: "Complete Upgrades",
-                desc: "Hire qualified professionals and have your retrofit work completed.",
-              },
-              {
-                step: 4,
-                title: "Submit Validation",
-                desc: "Upload before/after photos and get professional sign-off to receive your grant.",
-              },
+              { step: 1, title: dict.home.step1Title, desc: dict.home.step1Desc },
+              { step: 2, title: dict.home.step2Title, desc: dict.home.step2Desc },
+              { step: 3, title: dict.home.step3Title, desc: dict.home.step3Desc },
+              { step: 4, title: dict.home.step4Title, desc: dict.home.step4Desc },
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className="gc-step gc-step-active mx-auto mb-4">
@@ -81,17 +83,16 @@ export default function Home() {
       <section className="py-16 bg-gc-bg">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gc-blue mb-2 text-center">
-            Available Grants
+            {dict.home.availableGrants}
           </h2>
           <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
-            Multiple retrofit categories are available. You can apply for
-            grants in more than one category.
+            {dict.home.availableGrantsDesc}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {grants.map((grant) => (
               <Link
                 key={grant.id}
-                href={`/grants#${grant.id}`}
+                href={`/${locale}/grants#${grant.id}`}
                 className="gc-card no-underline group"
               >
                 <div className="text-3xl mb-3">{grant.icon}</div>
@@ -104,10 +105,10 @@ export default function Home() {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-gc-green font-bold">
-                    Up to ${grant.maxAmount.toLocaleString()}
+                    {dict.common.upTo} {fmt.format(grant.maxAmount)}
                   </span>
                   <span className="text-gc-accent text-sm font-medium group-hover:underline">
-                    Learn more &rarr;
+                    {dict.common.learnMore} &rarr;
                   </span>
                 </div>
               </Link>
@@ -121,43 +122,37 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-gc-blue mb-4">
-              Validation &amp; Verification
+              {dict.home.validationTitle}
             </h2>
             <p className="text-gray-600 mb-8 leading-relaxed">
-              To ensure the integrity of the program, all retrofit work must be
-              validated. Homeowners take before and after photos, and a qualified
-              professional (builder, engineer, electrician, or plumber) provides
-              a signed validation of the completed installation.
+              {dict.home.validationDesc}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
               <div className="gc-card">
-                <div className="text-2xl mb-2">📸</div>
+                <div className="text-2xl mb-2">&#128248;</div>
                 <h3 className="font-bold text-gc-blue mb-2">
-                  Photo Documentation
+                  {dict.home.photoDoc}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Take dated photos before work begins and after completion.
-                  Shows the area, equipment, and installation quality.
+                  {dict.home.photoDocDesc}
                 </p>
               </div>
               <div className="gc-card">
-                <div className="text-2xl mb-2">✅</div>
+                <div className="text-2xl mb-2">&#9989;</div>
                 <h3 className="font-bold text-gc-blue mb-2">
-                  Professional Sign-Off
+                  {dict.home.proSignOff}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  A licensed builder, engineer, electrician, or plumber verifies
-                  the work meets code and program standards.
+                  {dict.home.proSignOffDesc}
                 </p>
               </div>
               <div className="gc-card">
-                <div className="text-2xl mb-2">💰</div>
+                <div className="text-2xl mb-2">&#128176;</div>
                 <h3 className="font-bold text-gc-blue mb-2">
-                  Receive Your Grant
+                  {dict.home.receiveGrant}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Once validated, your grant is deposited directly into your bank
-                  account within 4-6 weeks.
+                  {dict.home.receiveGrantDesc}
                 </p>
               </div>
             </div>
@@ -169,21 +164,23 @@ export default function Home() {
       <section className="py-16 bg-gc-blue text-white">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Ready to Make Your Home Greener?
+            {dict.home.ctaTitle}
           </h2>
           <p className="text-gray-300 mb-8 max-w-xl mx-auto">
-            Check your eligibility in under 2 minutes, then start your
-            application today. Funding is limited.
+            {dict.home.ctaDesc}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/eligibility" className="gc-btn gc-btn-success">
-              Check Eligibility
+            <Link
+              href={`/${locale}/eligibility`}
+              className="gc-btn gc-btn-success"
+            >
+              {dict.home.ctaEligibility}
             </Link>
             <Link
-              href="/apply"
+              href={`/${locale}/apply`}
               className="gc-btn gc-btn-outline border-white text-white hover:bg-white hover:text-gc-blue"
             >
-              Apply Now
+              {dict.home.ctaApply}
             </Link>
           </div>
         </div>

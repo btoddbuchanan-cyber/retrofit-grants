@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
+import { useDictionary } from "@/components/DictionaryProvider";
 
 interface FormState {
   isOwner: string;
@@ -12,7 +13,12 @@ interface FormState {
   primaryResidence: string;
 }
 
+const provinceCodes = [
+  "AB", "BC", "MB", "NB", "NL", "NT", "NS", "NU", "ON", "PE", "QC", "SK", "YT",
+] as const;
+
 export default function EligibilityPage() {
+  const { dict, locale } = useDictionary();
   const [form, setForm] = useState<FormState>({
     isOwner: "",
     propertyType: "",
@@ -21,22 +27,6 @@ export default function EligibilityPage() {
     primaryResidence: "",
   });
   const [submitted, setSubmitted] = useState(false);
-
-  const provinces = [
-    "Alberta",
-    "British Columbia",
-    "Manitoba",
-    "New Brunswick",
-    "Newfoundland and Labrador",
-    "Northwest Territories",
-    "Nova Scotia",
-    "Nunavut",
-    "Ontario",
-    "Prince Edward Island",
-    "Quebec",
-    "Saskatchewan",
-    "Yukon",
-  ];
 
   const isEligible =
     form.isOwner === "yes" &&
@@ -56,27 +46,30 @@ export default function EligibilityPage() {
     setSubmitted(false);
   };
 
+  const provinces = dict.provinces as Record<string, string>;
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: "Eligibility Checker" }]} />
+      <Breadcrumb
+        items={[{ label: dict.eligibility.breadcrumb }]}
+        locale={locale}
+        homeLabel={dict.common.home}
+      />
 
       <h1 className="text-3xl font-bold text-gc-blue mb-2">
-        Check Your Eligibility
+        {dict.eligibility.pageTitle}
       </h1>
-      <p className="text-gray-600 mb-8">
-        Answer a few questions to find out if you qualify for the Canada Greener
-        Homes Retrofit Grant. This takes less than 2 minutes.
-      </p>
+      <p className="text-gray-600 mb-8">{dict.eligibility.pageDesc}</p>
 
       <form onSubmit={handleSubmit}>
         <div className="gc-card mb-6">
           <h2 className="text-lg font-bold text-gc-blue mb-4">
-            Property Information
+            {dict.eligibility.propertyInfo}
           </h2>
 
           <div className="gc-form-group">
             <label className="gc-label">
-              Are you the registered owner of the property?
+              {dict.eligibility.isOwnerQuestion}
             </label>
             <div className="flex gap-4 mt-1">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -88,7 +81,7 @@ export default function EligibilityPage() {
                   onChange={(e) => update("isOwner", e.target.value)}
                   className="w-4 h-4"
                 />
-                Yes
+                {dict.common.yes}
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -99,14 +92,14 @@ export default function EligibilityPage() {
                   onChange={(e) => update("isOwner", e.target.value)}
                   className="w-4 h-4"
                 />
-                No
+                {dict.common.no}
               </label>
             </div>
           </div>
 
           <div className="gc-form-group">
             <label className="gc-label">
-              Is this your primary residence?
+              {dict.eligibility.primaryResidenceQuestion}
             </label>
             <div className="flex gap-4 mt-1">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -118,7 +111,7 @@ export default function EligibilityPage() {
                   onChange={(e) => update("primaryResidence", e.target.value)}
                   className="w-4 h-4"
                 />
-                Yes
+                {dict.common.yes}
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -129,14 +122,14 @@ export default function EligibilityPage() {
                   onChange={(e) => update("primaryResidence", e.target.value)}
                   className="w-4 h-4"
                 />
-                No
+                {dict.common.no}
               </label>
             </div>
           </div>
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="propertyType">
-              Property Type
+              {dict.eligibility.propertyTypeLabel}
             </label>
             <select
               id="propertyType"
@@ -144,19 +137,19 @@ export default function EligibilityPage() {
               value={form.propertyType}
               onChange={(e) => update("propertyType", e.target.value)}
             >
-              <option value="">Select property type</option>
-              <option value="detached">Single-detached house</option>
-              <option value="semi">Semi-detached house</option>
-              <option value="row">Row house / townhouse</option>
-              <option value="duplex">Duplex / triplex</option>
-              <option value="mobile">Mobile / manufactured home (on permanent foundation)</option>
-              <option value="small-multi">Small multi-unit (up to 4 units)</option>
+              <option value="">{dict.eligibility.selectPropertyType}</option>
+              <option value="detached">{dict.eligibility.detached}</option>
+              <option value="semi">{dict.eligibility.semi}</option>
+              <option value="row">{dict.eligibility.row}</option>
+              <option value="duplex">{dict.eligibility.duplex}</option>
+              <option value="mobile">{dict.eligibility.mobile}</option>
+              <option value="small-multi">{dict.eligibility.smallMulti}</option>
             </select>
           </div>
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="province">
-              Province or Territory
+              {dict.eligibility.provinceLabel}
             </label>
             <select
               id="province"
@@ -164,10 +157,10 @@ export default function EligibilityPage() {
               value={form.province}
               onChange={(e) => update("province", e.target.value)}
             >
-              <option value="">Select province or territory</option>
-              {provinces.map((p) => (
-                <option key={p} value={p}>
-                  {p}
+              <option value="">{dict.eligibility.selectProvince}</option>
+              {provinceCodes.map((code) => (
+                <option key={code} value={code}>
+                  {provinces[code]}
                 </option>
               ))}
             </select>
@@ -175,26 +168,26 @@ export default function EligibilityPage() {
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="yearBuilt">
-              Year the Home Was Built
+              {dict.eligibility.yearBuiltLabel}
             </label>
             <input
               type="number"
               id="yearBuilt"
               className="gc-input max-w-xs"
-              placeholder="e.g. 1985"
+              placeholder={dict.eligibility.yearBuiltPlaceholder}
               min="1800"
               max={new Date().getFullYear()}
               value={form.yearBuilt}
               onChange={(e) => update("yearBuilt", e.target.value)}
             />
             <p className="text-sm text-gray-500 mt-1">
-              Home must be an existing structure (not new construction).
+              {dict.eligibility.yearBuiltNote}
             </p>
           </div>
         </div>
 
         <button type="submit" className="gc-btn gc-btn-primary">
-          Check Eligibility
+          {dict.eligibility.checkButton}
         </button>
       </form>
 
@@ -203,44 +196,42 @@ export default function EligibilityPage() {
           {isEligible ? (
             <div className="gc-alert gc-alert-success">
               <h3 className="font-bold text-gc-green mb-2">
-                &#10003; You appear to be eligible!
+                &#10003; {dict.eligibility.eligibleTitle}
               </h3>
               <p className="mb-4">
-                Based on your responses, your property in {form.province} may
-                qualify for the Canada Greener Homes Retrofit Grant. The next
-                step is to submit a full application.
+                {dict.eligibility.eligibleDesc.replace(
+                  "{province}",
+                  provinces[form.province] || form.province
+                )}
               </p>
-              <Link href="/apply" className="gc-btn gc-btn-success">
-                Start Your Application
+              <Link
+                href={`/${locale}/apply`}
+                className="gc-btn gc-btn-success"
+              >
+                {dict.eligibility.startApplication}
               </Link>
             </div>
           ) : (
             <div className="gc-alert gc-alert-danger">
               <h3 className="font-bold text-gc-red mb-2">
-                &#10007; You may not be eligible
+                &#10007; {dict.eligibility.notEligibleTitle}
               </h3>
-              <p className="mb-2">
-                Based on your responses, your property may not qualify. Common
-                reasons include:
-              </p>
+              <p className="mb-2">{dict.eligibility.notEligibleDesc}</p>
               <ul className="list-disc list-inside text-sm space-y-1 mb-4">
                 {form.isOwner !== "yes" && (
-                  <li>You must be the registered homeowner</li>
+                  <li>{dict.eligibility.notOwner}</li>
                 )}
                 {form.primaryResidence !== "yes" && (
-                  <li>The property must be your primary residence</li>
+                  <li>{dict.eligibility.notPrimaryResidence}</li>
                 )}
                 {form.propertyType === "" && (
-                  <li>You must select a property type</li>
+                  <li>{dict.eligibility.noPropertyType}</li>
                 )}
                 {form.province === "" && (
-                  <li>You must select your province or territory</li>
+                  <li>{dict.eligibility.noProvince}</li>
                 )}
               </ul>
-              <p className="text-sm">
-                If you believe this is an error, call{" "}
-                <strong>1-800-O-Canada (1-800-622-6232)</strong> for assistance.
-              </p>
+              <p className="text-sm">{dict.eligibility.errorContact}</p>
             </div>
           )}
         </div>

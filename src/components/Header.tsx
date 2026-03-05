@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import CanadaFlag from "./CanadaFlag";
+import { useDictionary } from "./DictionaryProvider";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { dict, locale } = useDictionary();
+  const pathname = usePathname();
+
+  // Build the language toggle URL: strip current locale, prepend the other
+  const otherLocale = locale === "en" ? "fr" : "en";
+  const pathWithoutLocale = pathname.replace(/^\/(en|fr)/, "") || "/";
+  const switchHref = `/${otherLocale}${pathWithoutLocale}`;
 
   return (
     <header>
@@ -13,15 +22,19 @@ export default function Header() {
       <div className="bg-gc-blue text-white">
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CanadaFlag width={36} />
+            <CanadaFlag width={36} alt={dict.common.flagAlt} />
             <span className="text-sm font-semibold tracking-wide">
-              Canada.ca
+              {dict.nav.canadaCa}
             </span>
           </div>
           <div className="hidden md:flex items-center gap-4 text-sm">
-            <button className="hover:underline" aria-label="Switch to French">
-              Fran&ccedil;ais
-            </button>
+            <Link
+              href={switchHref}
+              className="text-white hover:underline no-underline"
+              aria-label={dict.nav.switchLangLabel}
+            >
+              {dict.nav.switchLang}
+            </Link>
           </div>
         </div>
       </div>
@@ -31,43 +44,44 @@ export default function Header() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link
-              href="/"
+              href={`/${locale}`}
               className="text-gc-blue-light font-bold text-lg no-underline hover:no-underline"
             >
-              <span className="text-gc-red">GreenHome</span> Canada
+              <span className="text-gc-red">{dict.nav.siteNameAccent}</span>{" "}
+              {dict.nav.siteName}
             </Link>
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-6 text-sm font-medium">
               <Link
-                href="/grants"
+                href={`/${locale}/grants`}
                 className="text-gc-blue hover:text-gc-accent no-underline"
               >
-                Grants
+                {dict.nav.grants}
               </Link>
               <Link
-                href="/eligibility"
+                href={`/${locale}/eligibility`}
                 className="text-gc-blue hover:text-gc-accent no-underline"
               >
-                Eligibility
+                {dict.nav.eligibility}
               </Link>
               <Link
-                href="/apply"
+                href={`/${locale}/apply`}
                 className="text-gc-blue hover:text-gc-accent no-underline"
               >
-                Apply
+                {dict.nav.apply}
               </Link>
               <Link
-                href="/validation"
+                href={`/${locale}/validation`}
                 className="text-gc-blue hover:text-gc-accent no-underline"
               >
-                Validation
+                {dict.nav.validation}
               </Link>
               <Link
-                href="/dashboard"
+                href={`/${locale}/dashboard`}
                 className="text-gc-blue hover:text-gc-accent no-underline"
               >
-                My Dashboard
+                {dict.nav.dashboard}
               </Link>
             </div>
 
@@ -75,7 +89,7 @@ export default function Header() {
             <button
               className="md:hidden p-2"
               onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Toggle menu"
+              aria-label={dict.nav.toggleMenu}
               aria-expanded={menuOpen}
             >
               <svg
@@ -108,39 +122,46 @@ export default function Header() {
             <div className="md:hidden pb-4 border-t border-gc-border">
               <div className="flex flex-col gap-2 pt-4">
                 <Link
-                  href="/grants"
+                  href={`/${locale}/grants`}
                   className="px-3 py-2 text-gc-blue hover:bg-gc-gray-light rounded no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Grants
+                  {dict.nav.grants}
                 </Link>
                 <Link
-                  href="/eligibility"
+                  href={`/${locale}/eligibility`}
                   className="px-3 py-2 text-gc-blue hover:bg-gc-gray-light rounded no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Eligibility
+                  {dict.nav.eligibility}
                 </Link>
                 <Link
-                  href="/apply"
+                  href={`/${locale}/apply`}
                   className="px-3 py-2 text-gc-blue hover:bg-gc-gray-light rounded no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Apply
+                  {dict.nav.apply}
                 </Link>
                 <Link
-                  href="/validation"
+                  href={`/${locale}/validation`}
                   className="px-3 py-2 text-gc-blue hover:bg-gc-gray-light rounded no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Validation
+                  {dict.nav.validation}
                 </Link>
                 <Link
-                  href="/dashboard"
+                  href={`/${locale}/dashboard`}
                   className="px-3 py-2 text-gc-blue hover:bg-gc-gray-light rounded no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
-                  My Dashboard
+                  {dict.nav.dashboard}
+                </Link>
+                <Link
+                  href={switchHref}
+                  className="px-3 py-2 text-gc-accent hover:bg-gc-gray-light rounded no-underline font-medium"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {dict.nav.switchLang}
                 </Link>
               </div>
             </div>

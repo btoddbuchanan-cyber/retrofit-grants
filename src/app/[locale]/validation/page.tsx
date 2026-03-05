@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
-import { grants } from "@/lib/grants";
+import { useDictionary } from "@/components/DictionaryProvider";
+import { getGrants } from "@/lib/grants";
 
 interface PhotoSet {
   before: string | null;
@@ -10,6 +12,9 @@ interface PhotoSet {
 }
 
 export default function ValidationPage() {
+  const { dict, locale } = useDictionary();
+  const grants = getGrants(locale);
+
   const [applicationRef, setApplicationRef] = useState("");
   const [grantCategory, setGrantCategory] = useState("");
   const [photos, setPhotos] = useState<PhotoSet>({
@@ -18,7 +23,6 @@ export default function ValidationPage() {
   });
   const [additionalPhotos, setAdditionalPhotos] = useState<string[]>([]);
 
-  // Professional validation
   const [professional, setProfessional] = useState({
     name: "",
     licenseNumber: "",
@@ -35,7 +39,6 @@ export default function ValidationPage() {
   const [submitted, setSubmitted] = useState(false);
 
   const handlePhotoChange = (type: "before" | "after") => {
-    // Simulate file selection
     if (type === "before") {
       setPhotos({ ...photos, before: "before-photo.jpg" });
     } else {
@@ -53,44 +56,44 @@ export default function ValidationPage() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Breadcrumb
           items={[
-            { label: "Validation", href: "/validation" },
-            { label: "Submitted" },
+            { label: dict.validation.breadcrumb, href: `/${locale}/validation` },
+            { label: dict.validation.submittedBreadcrumb },
           ]}
+          locale={locale}
+          homeLabel={dict.common.home}
         />
         <div className="gc-alert gc-alert-success mt-6">
           <h2 className="text-xl font-bold text-gc-green mb-2">
-            &#10003; Validation Package Submitted
+            &#10003; {dict.validation.successTitle}
           </h2>
           <p className="mb-2">
-            Your validation for application <strong>{applicationRef}</strong>{" "}
-            has been submitted successfully.
+            {dict.validation.successDesc.replace("{ref}", applicationRef)}
           </p>
-          <p className="text-sm">
-            Our team will review your submission within 5-7 business days. If
-            approved, your grant will be deposited within 4-6 weeks.
-          </p>
+          <p className="text-sm">{dict.validation.successNote}</p>
         </div>
         <div className="gc-card mt-6">
-          <h3 className="font-bold text-gc-blue mb-2">What Happens Next</h3>
+          <h3 className="font-bold text-gc-blue mb-2">
+            {dict.validation.whatNext}
+          </h3>
           <ul className="text-sm space-y-2 text-gray-600">
             <li className="flex items-start gap-2">
               <span className="text-gc-green">&#10003;</span>
-              Photos and professional validation will be reviewed
+              {dict.validation.next1}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-gc-green">&#10003;</span>
-              We may contact you or your professional for clarification
+              {dict.validation.next2}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-gc-green">&#10003;</span>
-              Once approved, grant funds are deposited via direct deposit
+              {dict.validation.next3}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-gc-green">&#10003;</span>
-              Track your status on your{" "}
-              <a href="/dashboard" className="text-gc-accent">
-                dashboard
-              </a>
+              {dict.validation.next4}{" "}
+              <Link href={`/${locale}/dashboard`} className="text-gc-accent">
+                {dict.nav.dashboard}
+              </Link>
             </li>
           </ul>
         </div>
@@ -100,33 +103,34 @@ export default function ValidationPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: "Submit Validation" }]} />
+      <Breadcrumb
+        items={[{ label: dict.validation.breadcrumb }]}
+        locale={locale}
+        homeLabel={dict.common.home}
+      />
 
       <h1 className="text-3xl font-bold text-gc-blue mb-2">
-        Submit Retrofit Validation
+        {dict.validation.pageTitle}
       </h1>
-      <p className="text-gray-600 mb-8">
-        After your retrofit work is complete, submit before and after photos
-        along with a professional validation to receive your grant funding.
-      </p>
+      <p className="text-gray-600 mb-8">{dict.validation.pageDesc}</p>
 
       <form onSubmit={handleSubmit}>
         {/* Application Reference */}
         <div className="gc-card mb-6">
           <h2 className="text-lg font-bold text-gc-blue mb-4">
-            Application Reference
+            {dict.validation.appRefTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="appRef">
-                Application Reference Number{" "}
+                {dict.validation.appRefLabel}{" "}
                 <span className="text-gc-red">*</span>
               </label>
               <input
                 id="appRef"
                 type="text"
                 className="gc-input"
-                placeholder="GH-2025-XXXXXX"
+                placeholder={dict.validation.appRefPlaceholder}
                 value={applicationRef}
                 onChange={(e) => setApplicationRef(e.target.value)}
                 required
@@ -134,7 +138,8 @@ export default function ValidationPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="grantCat">
-                Grant Category <span className="text-gc-red">*</span>
+                {dict.validation.grantCategoryLabel}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <select
                 id="grantCat"
@@ -143,7 +148,7 @@ export default function ValidationPage() {
                 onChange={(e) => setGrantCategory(e.target.value)}
                 required
               >
-                <option value="">Select category</option>
+                <option value="">{dict.validation.selectCategory}</option>
                 {grants.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.icon} {g.title}
@@ -157,17 +162,17 @@ export default function ValidationPage() {
         {/* Photo Documentation */}
         <div className="gc-card mb-6">
           <h2 className="text-lg font-bold text-gc-blue mb-2">
-            Photo Documentation
+            {dict.validation.photoTitle}
           </h2>
           <p className="text-sm text-gray-600 mb-4">
-            Upload clear, well-lit photos showing the area before and after the
-            retrofit work. Photos should include date stamps if possible.
+            {dict.validation.photoDesc}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-gc-blue mb-2">
-                Before Photos <span className="text-gc-red">*</span>
+                {dict.validation.beforePhotos}{" "}
+                <span className="text-gc-red">*</span>
               </h3>
               <div
                 className="gc-upload-area"
@@ -175,36 +180,37 @@ export default function ValidationPage() {
               >
                 {photos.before ? (
                   <div>
-                    <div className="text-3xl mb-2">✅</div>
+                    <div className="text-3xl mb-2">&#9989;</div>
                     <p className="text-gc-green font-medium text-sm">
-                      {photos.before} uploaded
+                      {photos.before} {dict.validation.uploaded}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      Click to replace
+                      {dict.validation.clickToReplace}
                     </p>
                   </div>
                 ) : (
                   <div>
-                    <div className="text-3xl mb-2">📸</div>
+                    <div className="text-3xl mb-2">&#128248;</div>
                     <p className="text-gray-600 text-sm">
-                      Upload before photos
+                      {dict.validation.uploadBefore}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      Show existing equipment/area before work began
+                      {dict.validation.beforePhotoDesc}
                     </p>
                   </div>
                 )}
               </div>
               <ul className="text-xs text-gray-500 mt-2 space-y-1">
-                <li>&#8226; Clear view of the area before work</li>
-                <li>&#8226; Existing equipment or conditions</li>
-                <li>&#8226; Include date stamp or newspaper if possible</li>
+                <li>&#8226; {dict.validation.beforeTip1}</li>
+                <li>&#8226; {dict.validation.beforeTip2}</li>
+                <li>&#8226; {dict.validation.beforeTip3}</li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold text-gc-blue mb-2">
-                After Photos <span className="text-gc-red">*</span>
+                {dict.validation.afterPhotos}{" "}
+                <span className="text-gc-red">*</span>
               </h3>
               <div
                 className="gc-upload-area"
@@ -212,37 +218,37 @@ export default function ValidationPage() {
               >
                 {photos.after ? (
                   <div>
-                    <div className="text-3xl mb-2">✅</div>
+                    <div className="text-3xl mb-2">&#9989;</div>
                     <p className="text-gc-green font-medium text-sm">
-                      {photos.after} uploaded
+                      {photos.after} {dict.validation.uploaded}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      Click to replace
+                      {dict.validation.clickToReplace}
                     </p>
                   </div>
                 ) : (
                   <div>
-                    <div className="text-3xl mb-2">📸</div>
+                    <div className="text-3xl mb-2">&#128248;</div>
                     <p className="text-gray-600 text-sm">
-                      Upload after photos
+                      {dict.validation.uploadAfter}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      Show completed installation from similar angles
+                      {dict.validation.afterPhotoDesc}
                     </p>
                   </div>
                 )}
               </div>
               <ul className="text-xs text-gray-500 mt-2 space-y-1">
-                <li>&#8226; Completed installation clearly visible</li>
-                <li>&#8226; Equipment labels / model numbers visible</li>
-                <li>&#8226; Similar angles to before photos</li>
+                <li>&#8226; {dict.validation.afterTip1}</li>
+                <li>&#8226; {dict.validation.afterTip2}</li>
+                <li>&#8226; {dict.validation.afterTip3}</li>
               </ul>
             </div>
           </div>
 
           <div className="mt-6">
             <h3 className="font-semibold text-gc-blue mb-2">
-              Additional Photos (optional)
+              {dict.validation.additionalPhotos}
             </h3>
             <div
               className="gc-upload-area"
@@ -250,15 +256,14 @@ export default function ValidationPage() {
                 setAdditionalPhotos([...additionalPhotos, "extra-photo.jpg"])
               }
             >
-              <div className="text-3xl mb-2">➕</div>
+              <div className="text-3xl mb-2">&#10133;</div>
               <p className="text-gray-600 text-sm">
-                Add more photos showing work in progress, equipment details,
-                permits, etc.
+                {dict.validation.additionalPhotosDesc}
               </p>
             </div>
             {additionalPhotos.length > 0 && (
               <p className="text-sm text-gc-green mt-2">
-                {additionalPhotos.length} additional photo(s) added
+                {additionalPhotos.length} {dict.validation.additionalAdded}
               </p>
             )}
           </div>
@@ -267,24 +272,21 @@ export default function ValidationPage() {
         {/* Professional Validation */}
         <div className="gc-card mb-6">
           <h2 className="text-lg font-bold text-gc-blue mb-2">
-            Professional Validation
+            {dict.validation.proTitle}
           </h2>
           <p className="text-sm text-gray-600 mb-4">
-            A licensed professional must verify that the retrofit work was
-            completed to code and program standards. Accepted professionals
-            include builders, engineers, electricians, and plumbers.
+            {dict.validation.proDesc}
           </p>
 
           <div className="gc-alert gc-alert-info mb-4">
-            <strong>Accepted professionals:</strong> Licensed builder, P.Eng /
-            P.Geo engineer, master electrician, licensed plumber, certified
-            energy advisor, HVAC technician.
+            <strong>{dict.validation.acceptedProfessionals}</strong>{" "}
+            {dict.validation.acceptedList}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profName">
-                Professional&apos;s Full Name{" "}
+                {dict.validation.proName}{" "}
                 <span className="text-gc-red">*</span>
               </label>
               <input
@@ -300,7 +302,8 @@ export default function ValidationPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profProfession">
-                Profession / Trade <span className="text-gc-red">*</span>
+                {dict.validation.proProfession}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <select
                 id="profProfession"
@@ -314,19 +317,23 @@ export default function ValidationPage() {
                 }
                 required
               >
-                <option value="">Select profession</option>
-                <option value="builder">Licensed Builder / General Contractor</option>
-                <option value="engineer">Professional Engineer (P.Eng)</option>
-                <option value="electrician">Master Electrician</option>
-                <option value="plumber">Licensed Plumber</option>
-                <option value="hvac">HVAC Technician</option>
-                <option value="energy-advisor">Certified Energy Advisor</option>
-                <option value="roofer">Licensed Roofer</option>
+                <option value="">{dict.validation.selectProfession}</option>
+                <option value="builder">{dict.validation.builder}</option>
+                <option value="engineer">{dict.validation.engineer}</option>
+                <option value="electrician">
+                  {dict.validation.electrician}
+                </option>
+                <option value="plumber">{dict.validation.plumber}</option>
+                <option value="hvac">{dict.validation.hvac}</option>
+                <option value="energy-advisor">
+                  {dict.validation.energyAdvisor}
+                </option>
+                <option value="roofer">{dict.validation.roofer}</option>
               </select>
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profLicense">
-                License / Certification Number{" "}
+                {dict.validation.proLicense}{" "}
                 <span className="text-gc-red">*</span>
               </label>
               <input
@@ -345,7 +352,7 @@ export default function ValidationPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profCompany">
-                Company Name
+                {dict.validation.proCompany}
               </label>
               <input
                 id="profCompany"
@@ -359,7 +366,8 @@ export default function ValidationPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profPhone">
-                Phone Number <span className="text-gc-red">*</span>
+                {dict.validation.proPhone}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <input
                 id="profPhone"
@@ -374,7 +382,8 @@ export default function ValidationPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="profEmail">
-                Email Address <span className="text-gc-red">*</span>
+                {dict.validation.proEmail}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <input
                 id="profEmail"
@@ -391,7 +400,8 @@ export default function ValidationPage() {
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="completionDate">
-              Date Work Was Completed <span className="text-gc-red">*</span>
+              {dict.validation.completionDate}{" "}
+              <span className="text-gc-red">*</span>
             </label>
             <input
               id="completionDate"
@@ -410,13 +420,13 @@ export default function ValidationPage() {
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="workDesc">
-              Description of Work Completed{" "}
+              {dict.validation.workDesc}{" "}
               <span className="text-gc-red">*</span>
             </label>
             <textarea
               id="workDesc"
               className="gc-input min-h-24"
-              placeholder="Describe the retrofit work performed, equipment installed, and any relevant details..."
+              placeholder={dict.validation.workDescPlaceholder}
               value={professional.workDescription}
               onChange={(e) =>
                 setProfessional({
@@ -430,8 +440,8 @@ export default function ValidationPage() {
 
           <div className="gc-form-group">
             <label className="gc-label">
-              Does the installation meet all applicable building codes and
-              program standards? <span className="text-gc-red">*</span>
+              {dict.validation.meetsCodeQuestion}{" "}
+              <span className="text-gc-red">*</span>
             </label>
             <div className="flex gap-4 mt-1">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -448,7 +458,7 @@ export default function ValidationPage() {
                   }
                   className="w-4 h-4"
                 />
-                Yes
+                {dict.common.yes}
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -464,19 +474,19 @@ export default function ValidationPage() {
                   }
                   className="w-4 h-4"
                 />
-                No
+                {dict.common.no}
               </label>
             </div>
           </div>
 
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="profComments">
-              Additional Comments
+              {dict.validation.proComments}
             </label>
             <textarea
               id="profComments"
               className="gc-input min-h-20"
-              placeholder="Any additional notes about the installation quality, recommendations, etc."
+              placeholder={dict.validation.proCommentsPlaceholder}
               value={professional.comments}
               onChange={(e) =>
                 setProfessional({ ...professional, comments: e.target.value })
@@ -486,17 +496,17 @@ export default function ValidationPage() {
 
           <div className="gc-form-group">
             <label className="gc-label">
-              Upload Signed Validation Form (PDF){" "}
+              {dict.validation.uploadSignedForm}{" "}
               <span className="text-gc-red">*</span>
             </label>
             <div className="gc-upload-area">
-              <div className="text-3xl mb-2">📋</div>
+              <div className="text-3xl mb-2">&#128203;</div>
               <p className="text-gray-600 text-sm">
-                Upload the signed professional validation form
+                {dict.validation.uploadSignedFormDesc}
               </p>
               <p className="text-xs text-gray-400 mt-1">
                 <a href="#" className="text-gc-accent underline">
-                  Download blank validation form (PDF)
+                  {dict.validation.downloadBlankForm}
                 </a>
               </p>
             </div>
@@ -505,15 +515,12 @@ export default function ValidationPage() {
 
         {/* Submit */}
         <div className="gc-alert gc-alert-warning mb-6">
-          <strong>Declaration:</strong> By submitting this validation, both the
-          homeowner and the validating professional confirm that all
-          information and photos are accurate and truthful. Fraudulent
-          submissions may result in criminal charges and repayment of grant
-          funds.
+          <strong>{dict.validation.declaration}</strong>{" "}
+          {dict.validation.declarationText}
         </div>
 
         <button type="submit" className="gc-btn gc-btn-success">
-          Submit Validation Package
+          {dict.validation.submitButton}
         </button>
       </form>
     </div>

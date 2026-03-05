@@ -5,10 +5,18 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
+export default function Breadcrumb({
+  items,
+  locale,
+  homeLabel = "Home",
+}: {
+  items: BreadcrumbItem[];
+  locale: string;
+  homeLabel?: string;
+}) {
   return (
     <nav className="gc-breadcrumb" aria-label="Breadcrumb">
-      <Link href="/">Home</Link>
+      <Link href={`/${locale}`}>{homeLabel}</Link>
       {items.map((item, i) => (
         <span key={i}>
           <span aria-hidden="true"> &gt; </span>

@@ -1,33 +1,42 @@
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
-import { grants } from "@/lib/grants";
+import { getDictionary } from "@/lib/getDictionary";
+import { isValidLocale, type Locale } from "@/lib/i18n";
+import { getGrants } from "@/lib/grants";
+import { notFound } from "next/navigation";
 
-export const metadata = {
-  title: "Available Grants - GreenHome Canada",
-  description:
-    "Explore all available retrofit grant categories including heat pumps, solar power, insulation, windows, and more.",
-};
+export default async function GrantsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
 
-export default function GrantsPage() {
+  const dict = await getDictionary(locale as Locale);
+  const grants = getGrants(locale as Locale);
   const categories = Array.from(new Set(grants.map((g) => g.category)));
+  const fmt = new Intl.NumberFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: "Available Grants" }]} />
+      <Breadcrumb
+        items={[{ label: dict.grants.breadcrumb }]}
+        locale={locale}
+        homeLabel={dict.common.home}
+      />
 
       <h1 className="text-3xl font-bold text-gc-blue mb-2">
-        Available Retrofit Grants
+        {dict.grants.pageTitle}
       </h1>
-      <p className="text-gray-600 mb-8 max-w-3xl">
-        The Canada Greener Homes Retrofit Grant program offers funding across
-        multiple categories. You may apply for grants in more than one category.
-        Review the details below to plan your retrofit project.
-      </p>
+      <p className="text-gray-600 mb-8 max-w-3xl">{dict.grants.pageDesc}</p>
 
       <div className="gc-alert gc-alert-info mb-8">
-        <strong>Tip:</strong> Combining multiple upgrades (e.g., insulation +
-        air sealing + heat pump) maximizes energy savings and total grant
-        funding.
+        <strong>{dict.grants.tip}</strong> {dict.grants.tipText}
       </div>
 
       {categories.map((cat) => (
@@ -39,7 +48,11 @@ export default function GrantsPage() {
             {grants
               .filter((g) => g.category === cat)
               .map((grant) => (
-                <div key={grant.id} id={grant.id} className="gc-card scroll-mt-24">
+                <div
+                  key={grant.id}
+                  id={grant.id}
+                  className="gc-card scroll-mt-24"
+                >
                   <div className="flex items-start gap-3 mb-3">
                     <span className="text-3xl">{grant.icon}</span>
                     <div>
@@ -47,7 +60,7 @@ export default function GrantsPage() {
                         {grant.title}
                       </h3>
                       <span className="text-gc-green font-bold">
-                        Up to ${grant.maxAmount.toLocaleString()}
+                        {dict.common.upTo} {fmt.format(grant.maxAmount)}
                       </span>
                     </div>
                   </div>
@@ -55,12 +68,14 @@ export default function GrantsPage() {
 
                   <div className="mb-4">
                     <h4 className="font-semibold text-sm text-gc-blue mb-2">
-                      Key Benefits
+                      {dict.grants.keyBenefits}
                     </h4>
                     <ul className="text-sm text-gray-600 space-y-1">
                       {grant.details.map((d, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="text-gc-green mt-0.5">&#10003;</span>
+                          <span className="text-gc-green mt-0.5">
+                            &#10003;
+                          </span>
                           {d}
                         </li>
                       ))}
@@ -69,7 +84,7 @@ export default function GrantsPage() {
 
                   <div className="mb-4">
                     <h4 className="font-semibold text-sm text-gc-blue mb-2">
-                      Eligible Work
+                      {dict.grants.eligibleWork}
                     </h4>
                     <ul className="text-sm text-gray-600 space-y-1">
                       {grant.eligibleWork.map((w, i) => (
@@ -81,8 +96,11 @@ export default function GrantsPage() {
                     </ul>
                   </div>
 
-                  <Link href="/apply" className="gc-btn gc-btn-primary text-sm">
-                    Apply for This Grant
+                  <Link
+                    href={`/${locale}/apply`}
+                    className="gc-btn gc-btn-primary text-sm"
+                  >
+                    {dict.grants.applyForThis}
                   </Link>
                 </div>
               ))}

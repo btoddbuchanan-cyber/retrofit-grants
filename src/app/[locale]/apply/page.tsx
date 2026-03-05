@@ -3,23 +3,37 @@
 import { useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
-import { grants } from "@/lib/grants";
+import { useDictionary } from "@/components/DictionaryProvider";
+import { getGrants } from "@/lib/grants";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
-const steps = [
-  "Personal Information",
-  "Property Details",
-  "Select Grants",
-  "Upload Documents",
-  "Review & Submit",
-];
+const provinceCodes = [
+  "AB", "BC", "MB", "NB", "NL", "NT", "NS", "NU", "ON", "PE", "QC", "SK", "YT",
+] as const;
 
 export default function ApplyPage() {
+  const { dict, locale } = useDictionary();
+  const grants = getGrants(locale);
+  const provinces = dict.provinces as Record<string, string>;
+
+  const steps = [
+    dict.apply.step1,
+    dict.apply.step2,
+    dict.apply.step3,
+    dict.apply.step4,
+    dict.apply.step5,
+  ];
+
+  const fmt = new Intl.NumberFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  });
+
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [submitted, setSubmitted] = useState(false);
 
-  // Form state
   const [personal, setPersonal] = useState({
     firstName: "",
     lastName: "",
@@ -41,22 +55,6 @@ export default function ApplyPage() {
 
   const [selectedGrants, setSelectedGrants] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-
-  const provinces = [
-    "Alberta",
-    "British Columbia",
-    "Manitoba",
-    "New Brunswick",
-    "Newfoundland and Labrador",
-    "Northwest Territories",
-    "Nova Scotia",
-    "Nunavut",
-    "Ontario",
-    "Prince Edward Island",
-    "Quebec",
-    "Saskatchewan",
-    "Yukon",
-  ];
 
   const toggleGrant = (id: string) => {
     setSelectedGrants((prev) =>
@@ -108,80 +106,81 @@ export default function ApplyPage() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Breadcrumb
           items={[
-            { label: "Apply", href: "/apply" },
-            { label: "Confirmation" },
+            { label: dict.apply.breadcrumb, href: `/${locale}/apply` },
+            { label: dict.apply.confirmBreadcrumb },
           ]}
+          locale={locale}
+          homeLabel={dict.common.home}
         />
         <div className="gc-alert gc-alert-success mt-6">
           <h2 className="text-xl font-bold text-gc-green mb-2">
-            &#10003; Application Submitted Successfully!
+            &#10003; {dict.apply.successTitle}
           </h2>
           <p className="mb-4">
-            Your application reference number is{" "}
-            <strong>GH-2025-{Math.floor(Math.random() * 900000 + 100000)}</strong>
+            {dict.apply.refNumber}{" "}
+            <strong>
+              GH-2025-{Math.floor(Math.random() * 900000 + 100000)}
+            </strong>
           </p>
           <p className="mb-4 text-sm">
-            A confirmation email has been sent to{" "}
-            <strong>{personal.email}</strong>. You will receive a decision
-            within 10 business days.
+            {dict.apply.confirmationEmail}{" "}
+            <strong>{personal.email}</strong>. {dict.apply.decisionTime}
           </p>
         </div>
 
         <div className="gc-card mt-6">
-          <h3 className="font-bold text-gc-blue mb-4">Next Steps</h3>
+          <h3 className="font-bold text-gc-blue mb-4">
+            {dict.apply.nextSteps}
+          </h3>
           <ol className="space-y-3 text-sm">
             <li className="flex items-start gap-3">
               <span className="gc-step gc-step-active text-xs w-6 h-6 min-w-6">
                 1
               </span>
-              <span>
-                Wait for your application to be reviewed and approved (up to 10
-                business days).
-              </span>
+              <span>{dict.apply.nextStep1}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="gc-step gc-step-pending text-xs w-6 h-6 min-w-6">
                 2
               </span>
-              <span>
-                Once approved, you have 12 months to complete your retrofit
-                work.
-              </span>
+              <span>{dict.apply.nextStep2}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="gc-step gc-step-pending text-xs w-6 h-6 min-w-6">
                 3
               </span>
-              <span>
-                Take before photos, complete the work, then take after photos.
-              </span>
+              <span>{dict.apply.nextStep3}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="gc-step gc-step-pending text-xs w-6 h-6 min-w-6">
                 4
               </span>
-              <span>
-                Have a qualified professional validate the installation.
-              </span>
+              <span>{dict.apply.nextStep4}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="gc-step gc-step-pending text-xs w-6 h-6 min-w-6">
                 5
               </span>
               <span>
-                Submit your validation package through the{" "}
-                <Link href="/validation">Validation portal</Link>.
+                {dict.apply.nextStep5}{" "}
+                <Link href={`/${locale}/validation`}>
+                  {dict.apply.validationPortal}
+                </Link>
+                .
               </span>
             </li>
           </ol>
         </div>
 
         <div className="mt-6 flex gap-4">
-          <Link href="/dashboard" className="gc-btn gc-btn-primary">
-            Go to My Dashboard
+          <Link
+            href={`/${locale}/dashboard`}
+            className="gc-btn gc-btn-primary"
+          >
+            {dict.apply.goToDashboard}
           </Link>
-          <Link href="/" className="gc-btn gc-btn-outline">
-            Return Home
+          <Link href={`/${locale}`} className="gc-btn gc-btn-outline">
+            {dict.apply.returnHome}
           </Link>
         </div>
       </div>
@@ -190,10 +189,14 @@ export default function ApplyPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: "Apply for Grants" }]} />
+      <Breadcrumb
+        items={[{ label: dict.apply.breadcrumb }]}
+        locale={locale}
+        homeLabel={dict.common.home}
+      />
 
       <h1 className="text-3xl font-bold text-gc-blue mb-6">
-        Apply for Retrofit Grants
+        {dict.apply.pageTitle}
       </h1>
 
       {/* Step indicator */}
@@ -213,7 +216,7 @@ export default function ApplyPage() {
                     : "gc-step-pending"
                 }`}
               >
-                {isComplete ? "✓" : stepNum}
+                {isComplete ? "\u2713" : stepNum}
               </div>
               <span
                 className={`text-sm ${
@@ -242,12 +245,12 @@ export default function ApplyPage() {
       {currentStep === 1 && (
         <div className="gc-card">
           <h2 className="text-xl font-bold text-gc-blue mb-6">
-            Step 1: Personal Information
+            {dict.apply.step1}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="firstName">
-                First Name <span className="text-gc-red">*</span>
+                {dict.apply.firstName} <span className="text-gc-red">*</span>
               </label>
               <input
                 id="firstName"
@@ -262,7 +265,7 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="lastName">
-                Last Name <span className="text-gc-red">*</span>
+                {dict.apply.lastName} <span className="text-gc-red">*</span>
               </label>
               <input
                 id="lastName"
@@ -277,7 +280,7 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="email">
-                Email Address <span className="text-gc-red">*</span>
+                {dict.apply.email} <span className="text-gc-red">*</span>
               </label>
               <input
                 id="email"
@@ -292,13 +295,13 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="phone">
-                Phone Number <span className="text-gc-red">*</span>
+                {dict.apply.phone} <span className="text-gc-red">*</span>
               </label>
               <input
                 id="phone"
                 type="tel"
                 className="gc-input"
-                placeholder="(555) 555-5555"
+                placeholder={dict.apply.phonePlaceholder}
                 value={personal.phone}
                 onChange={(e) =>
                   setPersonal({ ...personal, phone: e.target.value })
@@ -309,7 +312,7 @@ export default function ApplyPage() {
           </div>
           <div className="gc-form-group">
             <label className="gc-label" htmlFor="address">
-              Street Address <span className="text-gc-red">*</span>
+              {dict.apply.address} <span className="text-gc-red">*</span>
             </label>
             <input
               id="address"
@@ -325,7 +328,7 @@ export default function ApplyPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="city">
-                City <span className="text-gc-red">*</span>
+                {dict.apply.city} <span className="text-gc-red">*</span>
               </label>
               <input
                 id="city"
@@ -340,7 +343,8 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="applyProvince">
-                Province / Territory <span className="text-gc-red">*</span>
+                {dict.apply.provinceTerritory}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <select
                 id="applyProvince"
@@ -350,23 +354,24 @@ export default function ApplyPage() {
                   setPersonal({ ...personal, province: e.target.value })
                 }
               >
-                <option value="">Select</option>
-                {provinces.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
+                <option value="">{dict.apply.select}</option>
+                {provinceCodes.map((code) => (
+                  <option key={code} value={code}>
+                    {provinces[code]}
                   </option>
                 ))}
               </select>
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="postalCode">
-                Postal Code <span className="text-gc-red">*</span>
+                {dict.apply.postalCode}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <input
                 id="postalCode"
                 type="text"
                 className="gc-input"
-                placeholder="A1A 1A1"
+                placeholder={dict.apply.postalCodePlaceholder}
                 value={personal.postalCode}
                 onChange={(e) =>
                   setPersonal({ ...personal, postalCode: e.target.value })
@@ -382,12 +387,13 @@ export default function ApplyPage() {
       {currentStep === 2 && (
         <div className="gc-card">
           <h2 className="text-xl font-bold text-gc-blue mb-6">
-            Step 2: Property Details
+            {dict.apply.step2}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="propType">
-                Property Type <span className="text-gc-red">*</span>
+                {dict.apply.propertyType}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <select
                 id="propType"
@@ -397,26 +403,25 @@ export default function ApplyPage() {
                   setProperty({ ...property, propertyType: e.target.value })
                 }
               >
-                <option value="">Select property type</option>
-                <option value="detached">Single-detached house</option>
-                <option value="semi">Semi-detached house</option>
-                <option value="row">Row house / townhouse</option>
-                <option value="duplex">Duplex / triplex</option>
-                <option value="mobile">Mobile / manufactured home</option>
-                <option value="small-multi">
-                  Small multi-unit (up to 4 units)
-                </option>
+                <option value="">{dict.apply.selectPropertyType}</option>
+                <option value="detached">{dict.apply.detached}</option>
+                <option value="semi">{dict.apply.semi}</option>
+                <option value="row">{dict.apply.row}</option>
+                <option value="duplex">{dict.apply.duplex}</option>
+                <option value="mobile">{dict.apply.mobile}</option>
+                <option value="small-multi">{dict.apply.smallMulti}</option>
               </select>
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="propYear">
-                Year Built <span className="text-gc-red">*</span>
+                {dict.apply.yearBuilt}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <input
                 id="propYear"
                 type="number"
                 className="gc-input"
-                placeholder="e.g. 1985"
+                placeholder={dict.apply.yearBuiltPlaceholder}
                 value={property.yearBuilt}
                 onChange={(e) =>
                   setProperty({ ...property, yearBuilt: e.target.value })
@@ -425,14 +430,14 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="sqft">
-                Approximate Square Footage{" "}
+                {dict.apply.squareFootage}{" "}
                 <span className="text-gc-red">*</span>
               </label>
               <input
                 id="sqft"
                 type="number"
                 className="gc-input"
-                placeholder="e.g. 1800"
+                placeholder={dict.apply.squareFootagePlaceholder}
                 value={property.squareFootage}
                 onChange={(e) =>
                   setProperty({ ...property, squareFootage: e.target.value })
@@ -441,7 +446,8 @@ export default function ApplyPage() {
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="heatType">
-                Current Heating Type <span className="text-gc-red">*</span>
+                {dict.apply.heatingType}{" "}
+                <span className="text-gc-red">*</span>
               </label>
               <select
                 id="heatType"
@@ -451,26 +457,32 @@ export default function ApplyPage() {
                   setProperty({ ...property, heatingType: e.target.value })
                 }
               >
-                <option value="">Select heating type</option>
-                <option value="gas-furnace">Natural gas furnace</option>
-                <option value="oil-furnace">Oil furnace</option>
-                <option value="electric-baseboard">Electric baseboard</option>
-                <option value="electric-furnace">Electric furnace</option>
-                <option value="propane">Propane</option>
-                <option value="wood">Wood / pellet stove</option>
-                <option value="heat-pump">Existing heat pump</option>
-                <option value="other">Other</option>
+                <option value="">{dict.apply.selectHeatingType}</option>
+                <option value="gas-furnace">{dict.apply.gasFurnace}</option>
+                <option value="oil-furnace">{dict.apply.oilFurnace}</option>
+                <option value="electric-baseboard">
+                  {dict.apply.electricBaseboard}
+                </option>
+                <option value="electric-furnace">
+                  {dict.apply.electricFurnace}
+                </option>
+                <option value="propane">{dict.apply.propane}</option>
+                <option value="wood">{dict.apply.wood}</option>
+                <option value="heat-pump">
+                  {dict.apply.heatPumpExisting}
+                </option>
+                <option value="other">{dict.apply.other}</option>
               </select>
             </div>
             <div className="gc-form-group">
               <label className="gc-label" htmlFor="occupants">
-                Number of Occupants
+                {dict.apply.numOccupants}
               </label>
               <input
                 id="occupants"
                 type="number"
                 className="gc-input"
-                placeholder="e.g. 4"
+                placeholder={dict.apply.numOccupantsPlaceholder}
                 min="1"
                 value={property.numOccupants}
                 onChange={(e) =>
@@ -486,12 +498,9 @@ export default function ApplyPage() {
       {currentStep === 3 && (
         <div className="gc-card">
           <h2 className="text-xl font-bold text-gc-blue mb-2">
-            Step 3: Select Grant Categories
+            {dict.apply.step3Title}
           </h2>
-          <p className="text-gray-600 mb-6">
-            Select the retrofit upgrades you plan to make. You can choose
-            multiple categories.
-          </p>
+          <p className="text-gray-600 mb-6">{dict.apply.step3Desc}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {grants.map((grant) => {
@@ -521,11 +530,11 @@ export default function ApplyPage() {
                               : "border-gray-400"
                           }`}
                         >
-                          {selected && "✓"}
+                          {selected && "\u2713"}
                         </span>
                       </div>
                       <p className="text-gc-green text-sm font-medium">
-                        Up to ${grant.maxAmount.toLocaleString()}
+                        {dict.common.upTo} {fmt.format(grant.maxAmount)}
                       </p>
                       <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                         {grant.description}
@@ -540,11 +549,18 @@ export default function ApplyPage() {
           {selectedGrants.length > 0 && (
             <div className="gc-alert gc-alert-success">
               <strong>
-                {selectedGrants.length} grant
-                {selectedGrants.length > 1 ? "s" : ""} selected
+                {selectedGrants.length > 1
+                  ? dict.apply.grantsSelectedPlural.replace(
+                      "{count}",
+                      String(selectedGrants.length)
+                    )
+                  : dict.apply.grantsSelected.replace(
+                      "{count}",
+                      String(selectedGrants.length)
+                    )}
               </strong>{" "}
-              &mdash; Maximum potential funding:{" "}
-              <strong>${totalGrant.toLocaleString()}</strong>
+              &mdash; {dict.apply.maxPotentialFunding}{" "}
+              <strong>{fmt.format(totalGrant)}</strong>
             </div>
           )}
         </div>
@@ -554,66 +570,64 @@ export default function ApplyPage() {
       {currentStep === 4 && (
         <div className="gc-card">
           <h2 className="text-xl font-bold text-gc-blue mb-2">
-            Step 4: Supporting Documents
+            {dict.apply.step4Title}
           </h2>
-          <p className="text-gray-600 mb-6">
-            Upload any supporting documents. These are optional at the
-            application stage but will be required during validation.
-          </p>
+          <p className="text-gray-600 mb-6">{dict.apply.step4Desc}</p>
 
           <div className="gc-form-group">
-            <label className="gc-label">
-              Proof of Ownership (e.g., property tax bill, title deed)
-            </label>
+            <label className="gc-label">{dict.apply.proofOfOwnership}</label>
             <div className="gc-upload-area">
-              <div className="text-3xl mb-2">📄</div>
+              <div className="text-3xl mb-2">&#128196;</div>
               <p className="text-gray-600 text-sm">
-                Drag and drop files here, or{" "}
-                <span className="text-gc-accent underline">browse</span>
+                {dict.apply.dragDrop}{" "}
+                <span className="text-gc-accent underline">
+                  {dict.apply.browse}
+                </span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF, JPG, or PNG up to 10MB
+                {dict.apply.pdfJpgPng}
               </p>
             </div>
           </div>
 
           <div className="gc-form-group">
-            <label className="gc-label">
-              Energy Audit Report (if available)
-            </label>
+            <label className="gc-label">{dict.apply.energyAudit}</label>
             <div className="gc-upload-area">
-              <div className="text-3xl mb-2">📊</div>
+              <div className="text-3xl mb-2">&#128202;</div>
               <p className="text-gray-600 text-sm">
-                Drag and drop files here, or{" "}
-                <span className="text-gc-accent underline">browse</span>
+                {dict.apply.dragDrop}{" "}
+                <span className="text-gc-accent underline">
+                  {dict.apply.browse}
+                </span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF up to 10MB
+                {dict.apply.pdfOnly}
               </p>
             </div>
           </div>
 
           <div className="gc-form-group">
-            <label className="gc-label">
-              Contractor Quotes (if available)
-            </label>
+            <label className="gc-label">{dict.apply.contractorQuotes}</label>
             <div className="gc-upload-area">
-              <div className="text-3xl mb-2">🧾</div>
+              <div className="text-3xl mb-2">&#129534;</div>
               <p className="text-gray-600 text-sm">
-                Drag and drop files here, or{" "}
-                <span className="text-gc-accent underline">browse</span>
+                {dict.apply.dragDrop}{" "}
+                <span className="text-gc-accent underline">
+                  {dict.apply.browse}
+                </span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF, JPG, or PNG up to 10MB each
+                {dict.apply.pdfJpgPngEach}
               </p>
             </div>
           </div>
 
           <div className="gc-alert gc-alert-info">
-            <strong>Note:</strong> Before and after photos and professional
-            validation will be required after your retrofit work is complete.
-            You can submit these through the{" "}
-            <Link href="/validation">Validation portal</Link>.
+            <strong>Note:</strong> {dict.apply.step4Note}{" "}
+            <Link href={`/${locale}/validation`}>
+              {dict.apply.validationPortal}
+            </Link>
+            .
           </div>
         </div>
       )}
@@ -622,72 +636,78 @@ export default function ApplyPage() {
       {currentStep === 5 && (
         <div className="gc-card">
           <h2 className="text-xl font-bold text-gc-blue mb-6">
-            Step 5: Review &amp; Submit
+            {dict.apply.step5Title}
           </h2>
 
           <div className="space-y-6">
             <div>
               <h3 className="font-bold text-gc-blue-light mb-2 flex items-center justify-between">
-                Personal Information
+                {dict.apply.personalInfo}
                 <button
                   className="text-sm text-gc-accent underline font-normal"
                   onClick={() => setCurrentStep(1)}
                 >
-                  Edit
+                  {dict.common.edit}
                 </button>
               </h3>
               <div className="bg-gc-bg rounded p-4 text-sm space-y-1">
                 <p>
-                  <strong>Name:</strong> {personal.firstName}{" "}
+                  <strong>{dict.apply.name}</strong> {personal.firstName}{" "}
                   {personal.lastName}
                 </p>
                 <p>
-                  <strong>Email:</strong> {personal.email}
+                  <strong>{dict.apply.emailLabel}</strong> {personal.email}
                 </p>
                 <p>
-                  <strong>Phone:</strong> {personal.phone}
+                  <strong>{dict.apply.phoneLabel}</strong> {personal.phone}
                 </p>
                 <p>
-                  <strong>Address:</strong> {personal.address}, {personal.city},{" "}
-                  {personal.province} {personal.postalCode}
+                  <strong>{dict.apply.addressLabel}</strong> {personal.address},{" "}
+                  {personal.city},{" "}
+                  {provinces[personal.province] || personal.province}{" "}
+                  {personal.postalCode}
                 </p>
               </div>
             </div>
 
             <div>
               <h3 className="font-bold text-gc-blue-light mb-2 flex items-center justify-between">
-                Property Details
+                {dict.apply.propertyDetails}
                 <button
                   className="text-sm text-gc-accent underline font-normal"
                   onClick={() => setCurrentStep(2)}
                 >
-                  Edit
+                  {dict.common.edit}
                 </button>
               </h3>
               <div className="bg-gc-bg rounded p-4 text-sm space-y-1">
                 <p>
-                  <strong>Type:</strong> {property.propertyType}
+                  <strong>{dict.apply.typeLabel}</strong>{" "}
+                  {property.propertyType}
                 </p>
                 <p>
-                  <strong>Year Built:</strong> {property.yearBuilt}
+                  <strong>{dict.apply.yearBuiltLabel}</strong>{" "}
+                  {property.yearBuilt}
                 </p>
                 <p>
-                  <strong>Size:</strong> {property.squareFootage} sq ft
+                  <strong>{dict.apply.sizeLabel}</strong>{" "}
+                  {property.squareFootage} {dict.apply.sqft}
                 </p>
                 <p>
-                  <strong>Heating:</strong> {property.heatingType}
+                  <strong>{dict.apply.heatingLabel}</strong>{" "}
+                  {property.heatingType}
                 </p>
               </div>
             </div>
 
             <div>
               <h3 className="font-bold text-gc-blue-light mb-2 flex items-center justify-between">
-                Selected Grants
+                {dict.apply.selectedGrants}
                 <button
                   className="text-sm text-gc-accent underline font-normal"
                   onClick={() => setCurrentStep(3)}
                 >
-                  Edit
+                  {dict.common.edit}
                 </button>
               </h3>
               <div className="bg-gc-bg rounded p-4 text-sm space-y-2">
@@ -702,24 +722,22 @@ export default function ApplyPage() {
                         {g.icon} {g.title}
                       </span>
                       <span className="text-gc-green font-medium">
-                        Up to ${g.maxAmount.toLocaleString()}
+                        {dict.common.upTo} {fmt.format(g.maxAmount)}
                       </span>
                     </div>
                   ))}
                 <div className="border-t border-gc-border pt-2 mt-2 font-bold flex justify-between">
-                  <span>Maximum Total Grant</span>
+                  <span>{dict.apply.maxTotalGrant}</span>
                   <span className="text-gc-green">
-                    ${totalGrant.toLocaleString()}
+                    {fmt.format(totalGrant)}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="gc-alert gc-alert-warning">
-              <strong>Important:</strong> By submitting this application, you
-              confirm that all information provided is accurate. False or
-              misleading information may result in denial of your application or
-              repayment of grant funds.
+              <strong>{dict.apply.warningTitle}</strong>{" "}
+              {dict.apply.warningText}
             </div>
 
             <label className="flex items-start gap-3 cursor-pointer">
@@ -730,16 +748,15 @@ export default function ApplyPage() {
                 className="mt-1 w-4 h-4"
               />
               <span className="text-sm">
-                I confirm that I am the registered owner of this property, the
-                information provided is accurate, and I agree to the{" "}
+                {dict.apply.agreeText}{" "}
                 <a href="#" className="text-gc-accent underline">
-                  Terms and Conditions
+                  {dict.apply.termsAndConditions}
                 </a>{" "}
-                and{" "}
+                {dict.apply.and}{" "}
                 <a href="#" className="text-gc-accent underline">
-                  Privacy Notice
+                  {dict.apply.privacyNotice}
                 </a>{" "}
-                of the Canada Greener Homes Retrofit Grant program.
+                {dict.apply.agreeTextEnd}
               </span>
             </label>
           </div>
@@ -753,7 +770,7 @@ export default function ApplyPage() {
             className="gc-btn gc-btn-outline"
             onClick={() => setCurrentStep((currentStep - 1) as Step)}
           >
-            &larr; Previous
+            &larr; {dict.apply.previous}
           </button>
         ) : (
           <div />
@@ -766,7 +783,7 @@ export default function ApplyPage() {
             onClick={() => setCurrentStep((currentStep + 1) as Step)}
             style={{ opacity: canProceed() ? 1 : 0.5 }}
           >
-            Next Step &rarr;
+            {dict.apply.nextStep} &rarr;
           </button>
         ) : (
           <button
@@ -775,7 +792,7 @@ export default function ApplyPage() {
             onClick={handleSubmit}
             style={{ opacity: canProceed() ? 1 : 0.5 }}
           >
-            Submit Application
+            {dict.apply.submitApplication}
           </button>
         )}
       </div>
