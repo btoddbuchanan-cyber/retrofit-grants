@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CanadaFlag from "./CanadaFlag";
 
 export default function Footer() {
   return (
@@ -76,21 +77,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-600 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <svg
-              width="24"
-              height="16"
-              viewBox="0 0 30 20"
-              fill="none"
-              aria-hidden="true"
-            >
-              <rect width="8" height="20" fill="#FF0000" />
-              <rect x="8" width="14" height="20" fill="#FFFFFF" />
-              <rect x="22" width="8" height="20" fill="#FF0000" />
-              <path
-                d="M15 3 L16.5 7 L14 6 L12.5 8 L13 6 L11 6.5 L13 5 L12 3.5 L14 4.5 L15 3Z"
-                fill="#FF0000"
-              />
-            </svg>
+            <CanadaFlag width={30} />
             <span className="text-sm">Government of Canada</span>
           </div>
           <div className="text-xs text-gray-400 flex gap-4">

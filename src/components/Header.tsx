@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import CanadaFlag from "./CanadaFlag";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,21 +13,7 @@ export default function Header() {
       <div className="bg-gc-blue text-white">
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg
-              width="30"
-              height="20"
-              viewBox="0 0 30 20"
-              fill="none"
-              aria-hidden="true"
-            >
-              <rect width="8" height="20" fill="#FF0000" />
-              <rect x="8" width="14" height="20" fill="#FFFFFF" />
-              <rect x="22" width="8" height="20" fill="#FF0000" />
-              <path
-                d="M15 3 L16.5 7 L14 6 L12.5 8 L13 6 L11 6.5 L13 5 L12 3.5 L14 4.5 L15 3Z"
-                fill="#FF0000"
-              />
-            </svg>
+            <CanadaFlag width={36} />
             <span className="text-sm font-semibold tracking-wide">
               Canada.ca
             </span>
